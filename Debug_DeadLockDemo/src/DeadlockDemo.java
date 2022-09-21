@@ -49,14 +49,16 @@ public class DeadlockDemo {
 
                 Account toAccount = accounts.get(rnd.nextInt(NUM_ACCOUNTS));
                 Account fromAccount = accounts.get(rnd.nextInt(NUM_ACCOUNTS));
+
+                System.out.println("ToAccount: " + toAccount.getNumber() + " FromAccount: " + fromAccount.getNumber());
                 int amount = rnd.nextInt(1000);
 
                 if (!toAccount.equals(fromAccount)) {
                     try {
                         transfer(fromAccount, toAccount, amount);
-                        System.out.println("Transaction in process");
+                        System.out.println("Transaction in process: ");
                     } catch (OverdrawnException e) {
-                        System.out.println("Transaction in process");
+                        System.out.println("Overdrawn exception has occurred " );
                     }
 
                     printNewLine(i);
@@ -79,8 +81,24 @@ public class DeadlockDemo {
          */
         private void transfer(Account fromAccount, Account toAccount, int transferAmount) throws OverdrawnException {
 
-            synchronized (fromAccount) {
-                synchronized (toAccount) {
+            //Lock ordering
+
+            Account firstLock, secondLock;
+
+            if(fromAccount.getNumber() < toAccount.getNumber()) {
+                firstLock = fromAccount;
+                secondLock = toAccount;
+            }
+
+            else {
+                firstLock = toAccount;
+                secondLock = fromAccount;
+            }
+
+            synchronized (firstLock) {
+                System.out.println("Synchronized from account: " + firstLock.getNumber());
+                synchronized (secondLock) {
+                    System.out.println("Synchronized to account: " + secondLock.getNumber());
                     fromAccount.withdraw(transferAmount);
                     toAccount.deposit(transferAmount);
                 }
