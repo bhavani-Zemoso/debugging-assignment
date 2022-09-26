@@ -20,9 +20,9 @@ public class CartService implements ICartService{
       }
 
       if(cart.containsKey(item.getName())){
-        cart.put(item.getName(), cart.get(item.getName()) + 1);
+        cart.put(item.getName(), cart.get(item.getName()) + item.getQuantity());
       } else {
-        cart.put(item.getName(), 1);
+        cart.put(item.getName(), item.getQuantity());
       }
     }
 
@@ -44,6 +44,7 @@ public class CartService implements ICartService{
   public void clearCart(final UUID customerId) {
     Preconditions.checkNotNull(customerId, "CustomerId");
     fCart.put(customerId, new ConcurrentHashMap<>());
+    System.out.println("In clear cart");
   }
 
   @Override

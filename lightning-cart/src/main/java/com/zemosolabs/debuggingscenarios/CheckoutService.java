@@ -31,6 +31,7 @@ public class CheckoutService implements ICheckoutService{
             .filter(itemKey -> fItemCatalogue.getItem(itemKey).isPresent())
             .map(itemKey -> fItemCatalogue.getItem(itemKey).get().getCost() * cart.get(itemKey))
             .reduce(0.0D, Double::sum);
+    System.out.println("Amount to be deducted: " + amount);
     fBalanceService.deductBalance(customerId, amount);
     fCartService.clearCart(customerId);
   }
