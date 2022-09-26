@@ -74,8 +74,8 @@ sendBtn.addEventListener('click', e => {
 	const month = ('0' + date.getMonth()).slice(0, 2);
 	const day = date.getDate();
 	const year = date.getFullYear();
-	const dateString = `${month}/${day}/${year}`;
-	const dateString = `${month}/${day}`;
+	let dateString = `${month}/${day}/${year}`;
+	dateString = `${month}/${day}`;
 	
 
 
@@ -96,7 +96,8 @@ loginBtn.addEventListener('click', e => {
 	}
 
 	//set the username and create logged in message
-	username = usernameInput.text;
+	username = usernameInput.value;
+	console.log("Username: ", username);
 	sendMessage({ author: username, type: messageTypes.LOGIN });
 
 	//show chat window and hide login
