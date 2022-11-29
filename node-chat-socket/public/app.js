@@ -13,23 +13,27 @@ const loginBtn = document.getElementById('loginBtn');
 const loginWindow = document.getElementById('login');
 const chatRoom = document.getElementById('chat-room');
 
+let checkEvent = false;
+
 const messages = []; // { author, date, content, type }
 
 //Connect to socket.io - automatically tries to connect on same port app was served from
 var socket = io();
 
-chatRoom.addEventListener('change', e => {
-	if(e.target.value === 'chat-room-1')
-		socket.off('chat-room-2').on('chat-room-1', message => {
-			addMessage(message)
-		})
-	else
-		socket.off('chat-room-1').on('chat-room-2', message => {
-			addMessage(message)
-		})
+chatRoom.addEventListener('change', (e) => {
+	if (e.target.value === 'chat-room-1') {
+		socket.off('chat-room-2').on('chat-room-1', (message) => {
+			addMessage(message);
+		});
+	} else {
+		checkEvent = true;
+		socket.off('chat-room-1').on('chat-room-2', (message) => {
+			addMessage(message);
+		});
+	}
 });
 
-addMessage = message => {
+addMessage = (message) => {
 	//Update type of message based on username
 	if (message.type !== messageTypes.LOGIN) {
 		if (message.author === username) {
@@ -44,14 +48,12 @@ addMessage = message => {
 
 	//scroll to the bottom
 	chatWindow.scrollTop = chatWindow.scrollHeight;
-}
+};
 
-createMessageHTML = message => {
+createMessageHTML = (message) => {
 	if (message.type === messageTypes.LOGIN) {
 		return `
-			<p class="secondary-text text-center mb-2">${
-				message.author
-			} joined the chat...</p>
+			<p class="secondary-text text-center mb-2">${message.author} joined the chat...</p>
 		`;
 	}
 	return `
@@ -71,12 +73,12 @@ createMessageHTML = message => {
 
 displayMessages = () => {
 	const messagesHTML = messages
-		.map(message => createMessageHTML(message))
+		.map((message) => createMessageHTML(message))
 		.join('');
 	messagesList.innerHTML = messagesHTML;
 };
 
-sendBtn.addEventListener('click', e => {
+sendBtn.addEventListener('click', (e) => {
 	e.preventDefault();
 	if (!messageInput.value) {
 		return console.log('Invalid input');
@@ -88,23 +90,25 @@ sendBtn.addEventListener('click', e => {
 	const year = date.getFullYear();
 	const dateString = `${month}/${day}/${year}`;
 
-
 	const message = {
 		author: username,
 		date: dateString,
-		content: messageInput.value
+		content: messageInput.value,
 	};
 	sendMessage(message);
 	//clear input
 	messageInput.value = '';
 });
 
-loginBtn.addEventListener('click', e => {
+loginBtn.addEventListener('click', (e) => {
 	e.preventDefault();
-	socket
-	.on(chatRoom.value, message => {
-		addMessage(message)
-	})
+
+	if (!checkEvent) {
+		socket.on(chatRoom.value, (message) => {
+			addMessage(message);
+		});
+	}
+
 	if (!usernameInput.value) {
 		return console.log('Must supply a username');
 	}
@@ -118,6 +122,6 @@ loginBtn.addEventListener('click', e => {
 	chatWindow.classList.remove('hidden');
 });
 
-sendMessage = message => {
+sendMessage = (message) => {
 	socket.emit(chatRoom.value, message);
 };
